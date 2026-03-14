@@ -16,5 +16,6 @@ There are 3 options:
 <br />
 
 
+![The 15-Puzzle](https://github.com/callej/15-puzzle/blob/edc6abf0dd3b50b7ee8d4321150f25bc754bf705/15-Puzzle%20Web.png)
 
 
