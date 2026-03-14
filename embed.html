@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>15 Puzzle Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+:root {
+    --bg-color: #0d1117;
+    --board-bg: #161b22;
+    --tile-color: #21262d;
+    --text-primary: #c9d1d9;
+    --accent: #58a6ff;
+    --accent-glow: rgba(88, 166, 255, 0.4);
+    --tile-size: 55px;
+    --gap: 5px;
+    --board-padding: 8px;
+}
+
+@media (min-width: 500px) {
+    :root {
+        --tile-size: 85px;
+        --gap: 10px;
+        --board-padding: 16px;
+    }
+}
+
+@media (min-width: 768px) {
+    :root {
+        --tile-size: 100px;
+        --gap: 12px;
+        --board-padding: 20px;
+    }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(88, 166, 255, 0.05), transparent 30%),
+        radial-gradient(circle at 85% 30%, rgba(200, 88, 255, 0.05), transparent 30%);
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+header {
+    text-align: center;
+    width: 100%;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    background: linear-gradient(90deg, #fff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px var(--accent-glow);
+}
+
+.stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 5px;
+    gap: 20px;
+}
+
+.moves-container {
+    font-size: 1.2rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.highlight {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.glass-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.glass-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.glass-btn:active {
+    transform: translateY(0);
+}
+
+.glass-btn.primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.glass-btn.primary:hover {
+    background: #408bef;
+    box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+#board-housing {
+    background: #090c10;
+    padding: var(--board-padding);
+    border-radius: 16px;
+    box-shadow: 
+        inset 0 4px 10px rgba(0,0,0,0.8),
+        0 8px 30px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(255,255,255,0.05);
+}
+
+#board {
+    position: relative;
+    width: calc(var(--tile-size) * 4 + var(--gap) * 3);
+    height: calc(var(--tile-size) * 4 + var(--gap) * 3);
+    background: var(--board-bg);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tile {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--tile-size);
+    height: var(--tile-size);
+    background: linear-gradient(135deg, #2b323c, #1c2128);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #e6edf3;
+    cursor: grab;
+    box-shadow: 
+        inset 1px 1px 2px rgba(255,255,255,0.1),
+        inset -1px -1px 4px rgba(0,0,0,0.5),
+        2px 4px 8px rgba(0,0,0,0.4);
+    transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+    touch-action: none;
+    z-index: 1;
+}
+
+.tile:active, .tile.dragging {
+    cursor: grabbing;
+    z-index: 10;
+    transition: none; 
+    box-shadow: 
+        inset 1px 1px 2px rgba(255,255,255,0.1),
+        inset -1px -1px 4px rgba(0,0,0,0.5),
+        4px 8px 16px rgba(0,0,0,0.6);
+}
+
+.tile.correct {
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(40, 100, 200, 0.1));
+    border: 1px solid rgba(88, 166, 255, 0.3);
+    color: var(--accent);
+}
+
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+.modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    background: rgba(22, 27, 34, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    transform: scale(1);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal.hidden .modal-content {
+    transform: scale(0.8);
+}
+
+.modal-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 5px;
+    color: var(--accent);
+    text-shadow: 0 0 15px var(--accent-glow);
+}
+
+.modal-content p {
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    color: #8b949e;
+}
+
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>15 PUZZLE</h1>
+            <div class="stats">
+                <div class="moves-container">Moves: <span id="move-counter" class="highlight">0</span></div>
+                <button id="shuffle-btn" class="glass-btn">Shuffle</button>
+            </div>
+        </header>
+
+        <main>
+            <div id="board-housing">
+                <div id="board"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="win-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h2>Congratulations!</h2>
+            <p>You solved the puzzle in <span id="final-moves" class="highlight">0</span> moves.</p>
+            <button id="play-again-btn" class="glass-btn primary">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+const BOARD_SIZE = 4;
+let tiles = [];
+let moves = 0;
+let isSolved = false;
+let isDragging = false;
+let dragData = null;
+
+const boardEl = document.getElementById('board');
+const movesEl = document.getElementById('move-counter');
+const shuffleBtn = document.getElementById('shuffle-btn');
+const winModal = document.getElementById('win-modal');
+const playAgainBtn = document.getElementById('play-again-btn');
+const finalMovesEl = document.getElementById('final-moves');
+const tileElements = {};
+
+function init() {
+    createTileElements();
+    shuffleBoard();
+    updateMoves();
+    renderBoard();
+
+    shuffleBtn.addEventListener('click', () => {
+        if(isDragging) return;
+        shuffleBoard();
+        moves = 0;
+        updateMoves();
+        renderBoard();
+    });
+
+    playAgainBtn.addEventListener('click', () => {
+        winModal.classList.add('hidden');
+        shuffleBoard();
+        moves = 0;
+        updateMoves();
+        renderBoard();
+    });
+
+    window.addEventListener('resize', () => {
+        if (!isDragging) renderBoard();
+    });
+}
+
+function getGridMetrics() {
+    let tileSize = 55;
+    let gap = 5;
+    if (tileElements[1]) {
+        tileSize = tileElements[1].offsetWidth;
+        // Read gap directly from CSS variables
+        const rootStyles = getComputedStyle(document.documentElement);
+        const gapVal = rootStyles.getPropertyValue('--gap').trim();
+        if (gapVal.endsWith('px')) {
+            gap = parseFloat(gapVal);
+        }
+    }
+    return { tileSize, gap };
+}
+
+function createTileElements() {
+    boardEl.innerHTML = '';
+    for (let i = 1; i < BOARD_SIZE * BOARD_SIZE; i++) {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.textContent = i;
+        tile.dataset.value = i;
+        tile.addEventListener('pointerdown', handlePointerDown);
+        boardEl.appendChild(tile);
+        tileElements[i] = tile;
+    }
+}
+
+function handlePointerDown(e) {
+    if (isSolved || isDragging) return;
+    
+    const value = parseInt(e.target.dataset.value);
+    const index = tiles.indexOf(value);
+    const empIndex = tiles.indexOf(0);
+    
+    const startCol = index % BOARD_SIZE;
+    const startRow = Math.floor(index / BOARD_SIZE);
+    
+    const empCol = empIndex % BOARD_SIZE;
+    const empRow = Math.floor(empIndex / BOARD_SIZE);
+    
+    // Check if clicked tile is adjacent to empty tile
+    const dist = Math.abs(startCol - empCol) + Math.abs(startRow - empRow);
+    if (dist !== 1) return;
+    
+    isDragging = true;
+    e.target.setPointerCapture(e.pointerId);
+    e.target.classList.add('dragging');
+    
+    const { tileSize, gap } = getGridMetrics();
+    const step = tileSize + gap;
+    
+    dragData = {
+        pointerId: e.pointerId,
+        value,
+        index,
+        empIndex,
+        startX: e.clientX,
+        startY: e.clientY,
+        startCol, startRow,
+        empCol, empRow,
+        elem: e.target,
+        deltaX: 0,
+        deltaY: 0,
+        step,
+        baseTranslateX: startCol * step,
+        baseTranslateY: startRow * step
+    };
+    
+    e.target.addEventListener('pointermove', handlePointerMove);
+    e.target.addEventListener('pointerup', handlePointerUp);
+    e.target.addEventListener('pointercancel', handlePointerUp);
+}
+
+function handlePointerMove(e) {
+    if (!isDragging || !dragData || e.pointerId !== dragData.pointerId) return;
+    
+    const { startX, startY, startCol, startRow, empCol, empRow, elem, step, baseTranslateX, baseTranslateY } = dragData;
+    let dx = e.clientX - startX;
+    let dy = e.clientY - startY;
+    
+    // Constrain logic so that a tile can only slide towards the exact empty slot
+    if (startCol === empCol) {
+        dx = 0;
+        if (empRow > startRow) dy = Math.max(0, Math.min(dy, step));
+        else dy = Math.max(-step, Math.min(dy, 0));
+    } else {
+        dy = 0;
+        if (empCol > startCol) dx = Math.max(0, Math.min(dx, step));
+        else dx = Math.max(-step, Math.min(dx, 0));
+    }
+    
+    dragData.deltaX = dx;
+    dragData.deltaY = dy;
+    
+    elem.style.transform = `translate(${baseTranslateX + dx}px, ${baseTranslateY + dy}px)`;
+}
+
+function handlePointerUp(e) {
+    if (!isDragging || !dragData || e.pointerId !== dragData.pointerId) return;
+    
+    const { elem, deltaX, deltaY, index, empIndex, step } = dragData;
+    
+    elem.removeEventListener('pointermove', handlePointerMove);
+    elem.removeEventListener('pointerup', handlePointerUp);
+    elem.removeEventListener('pointercancel', handlePointerUp);
+    elem.releasePointerCapture(e.pointerId);
+    elem.classList.remove('dragging');
+    
+    const movedDist = Math.abs(deltaX) + Math.abs(deltaY);
+    const isCancel = e.type === 'pointercancel';
+    const isTap = movedDist < 5; // tap threshold
+    const isDragOverHalf = movedDist > step / 2; // dragged past half a block
+    
+    if (!isCancel && (isDragOverHalf || isTap)) {
+        tiles[empIndex] = dragData.value;
+        tiles[index] = 0;
+        moves++;
+        updateMoves();
+        checkWin();
+    }
+    
+    isDragging = false;
+    dragData = null;
+    
+    renderBoard();
+    
+    if (isSolved) {
+        setTimeout(showWin, 200);
+    }
+}
+
+function updateMoves() {
+    movesEl.textContent = moves;
+}
+
+function shuffleBoard() {
+    let solvable = false;
+    while (!solvable) {
+        const numbers = Array.from({length: 15}, (_, i) => i + 1);
+        for (let i = numbers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+        }
+        
+        // Put empty block at the bottom right end
+        tiles = [...numbers, 0];
+        
+        let inversions = 0;
+        for (let i = 0; i < 15; i++) {
+            for (let j = i + 1; j < 15; j++) {
+                if (tiles[i] > tiles[j]) inversions++;
+            }
+        }
+        
+        // Even inversions -> solvable with empty place on bottom right (even row counting up)
+        if (inversions % 2 === 0) {
+            solvable = true;
+        } else {
+            // Swap to turn odd inversions to even
+            [tiles[0], tiles[1]] = [tiles[1], tiles[0]];
+            solvable = true;
+        }
+    }
+    isSolved = false;
+}
+
+function renderBoard() {
+    const { tileSize, gap } = getGridMetrics();
+    const step = tileSize + gap;
+    
+    for (let i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+        const val = tiles[i];
+        if (val === 0) continue;
+        
+        const col = i % BOARD_SIZE;
+        const row = Math.floor(i / BOARD_SIZE);
+        
+        const elem = tileElements[val];
+        elem.style.transform = `translate(${col * step}px, ${row * step}px)`;
+        
+        if (val === i + 1) {
+            elem.classList.add('correct');
+        } else {
+            elem.classList.remove('correct');
+        }
+    }
+}
+
+function checkWin() {
+    isSolved = true;
+    for (let i = 0; i < BOARD_SIZE * BOARD_SIZE - 1; i++) {
+        if (tiles[i] !== i + 1) {
+            isSolved = false;
+            break;
+        }
+    }
+    if (tiles[15] !== 0) isSolved = false;
+}
+
+function showWin() {
+    finalMovesEl.textContent = moves;
+    winModal.classList.remove('hidden');
+}
+
+// Start game
+init();
+    </script>
+</body>
+</html>

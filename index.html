@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>15 Puzzle Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>15 PUZZLE</h1>
+            <div class="stats">
+                <div class="moves-container">Moves: <span id="move-counter" class="highlight">0</span></div>
+                <button id="shuffle-btn" class="glass-btn">Shuffle</button>
+            </div>
+        </header>
+
+        <main>
+            <div id="board-housing">
+                <div id="board"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="win-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h2>Congratulations!</h2>
+            <p>You solved the puzzle in <span id="final-moves" class="highlight">0</span> moves.</p>
+            <button id="play-again-btn" class="glass-btn primary">Play Again</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
